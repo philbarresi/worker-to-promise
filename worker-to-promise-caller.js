@@ -1,9 +1,6 @@
 // ToDo: polyfill Workers
 // ToDo: polyfill Promises
 
-
-
-
 (function (w2p) {
     function WorkerShim(scriptName, WorkerType) {
         console.log(arguments);
@@ -28,24 +25,28 @@
                 } else {
                     correspondingFinisher.reject.apply(correspondingFinisher, payload.response);
                 }
+
+                delete this.messagesInProgress[message.data._w2pId];
             }
         };
     }
 
-    Worker.prototype.getWorkerInstance = function () {
+    WorkerShim.prototype.getWorkerInstance = function () {
         return this.worker;
     }
 
-    Worker.prototype.send = function (methodName) {
+    WorkerShim.prototype.send = function (data, transferList, methodName) {
+        var self = this;
+
         return new Promise(function (resolve, reject) {
-            // will send objects in format: {_w2p: "", _w2pId: 0, args: []}
+            // will send objects in format: {_w2p: "", _w2pId: 0, data: any}
             var payload = {
                 _w2p: methodName,
                 _w2pId: this.messageId++,
-                args: arguments.slice(1)
+                data: data
             };
 
-            this.currentMessages[payload._w2pId] = {
+            self.messagesInProgress[payload._w2pId] = {
                 resolve: function () {
                     resolve(arguments);
                 },
@@ -54,8 +55,21 @@
                 }
             };
 
-            this.worker.postMessage(payload);
+            if (transferList) {
+                self.worker.postMessage(payload, transferList);
+            } else {
+                self.worker.postMessage(payload);
+            }
         });
+    }
+
+    WorkerShim.prototype.postMessage = function (data, transferList, methodName) {
+        if (typeof transferList === "string" && !methodName) {
+            methodName = transferList;
+            transferList = undefined;
+        }
+
+        return this.send(data, transferList, methodName);
     }
 
     function DedicatedWorker(scriptName) {

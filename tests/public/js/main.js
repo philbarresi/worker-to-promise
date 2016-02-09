@@ -13,18 +13,15 @@
         // an entered value is changed, and you don't want to have to unfocus the field to update its .value
 
         first.onchange = function () {
-            myWorker.postMessage([first.value, second.value]); // Sending message as an array to the worker
-            console.log('Message posted to worker');
+            myWorker.postMessage([first.value, second.value], "multiply").then(function (result) {
+                console.log(result);
+            })
         };
 
         second.onchange = function () {
-            myWorker.postMessage([first.value, second.value]);
-            console.log('Message posted to worker');
-        };
-
-        myWorker.onmessage = function (e) {
-            result.textContent = e.data;
-            console.log('Message received from worker');
+            myWorker.postMessage([first.value, second.value], "multiply").then(function (result) {
+                console.log(result);
+            });
         };
     }
 })();
