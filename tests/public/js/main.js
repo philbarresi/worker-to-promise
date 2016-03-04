@@ -1,8 +1,7 @@
 (function () {
-    var first = document.querySelector('#number1');
-    var second = document.querySelector('#number2');
-
-    var result = document.querySelector('.result');
+    var first = document.getElementById('number1');
+    var second = document.getElementById('number2');
+    var resultField = document.getElementById("result-number");
 
     if (window.Worker) { 
         // Check if Browser supports the Worker api.
@@ -13,13 +12,14 @@
         // an entered value is changed, and you don't want to have to unfocus the field to update its .value
 
         first.onchange = function () {
-            myWorker.postMessage([first.value, second.value], "multiply").then(function (result) {
+            myWorker.postMessage([parseInt(first.value), parseInt(second.value)], "multiply").then(function (result) {
                 console.log(result);
             })
         };
 
         second.onchange = function () {
-            myWorker.postMessage([first.value, second.value], "multiply").then(function (result) {
+            myWorker.postMessage([parseInt(first.value), parseInt(second.value)], "multiply").then(function (result) {
+                resultField.textContent = document.createTextNode(result).textContent;
                 console.log(result);
             });
         };

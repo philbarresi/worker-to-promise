@@ -1,13 +1,24 @@
 var gulp = require('gulp'),
     watch = require('gulp-watch'),
     debug = require('gulp-debug'),
-    batch = require('gulp-batch');;
+    batch = require('gulp-batch'),
+    ts = require('gulp-typescript');
 
-gulp.task('build', function () {
-    return gulp.src('worker-to-*.js')
-        .pipe(gulp.dest('tests/public/js/w2p'));
-})
+gulp.task('build-caller', function () {
+    return gulp.src('src/worker-to-promise-caller.ts')
+        .pipe(ts())
+        .pipe(gulp.dest('dest/'))
+        .pipe(gulp.dest('tests/public/js/w2p/'));
+});
+
+gulp.task('build-worker', function () {
+    return gulp.src('src/worker-to-promise-dedicated-worker.ts')
+        .pipe(ts())
+        .pipe(gulp.dest('dest/'))
+        .pipe(gulp.dest('tests/public/js/w2p/'));
+});
 
 gulp.task('default', function () {
-    return gulp.watch('*.js', ['build']);
+    gulp.watch('src/worker-to-promise-caller.ts', ['build-caller']);
+    gulp.watch('src/worker-to-promise-dedicated-worker.ts', ['build-worker']);
 });
