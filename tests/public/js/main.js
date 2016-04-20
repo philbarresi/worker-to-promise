@@ -13,6 +13,7 @@
 
         first.onchange = function () {
             myWorker.postMessage([parseInt(first.value), parseInt(second.value)], "multiply").then(function (result) {
+                resultField.textContent = document.createTextNode(result).textContent;
                 console.log(result);
             })
         };
